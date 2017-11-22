@@ -15,23 +15,44 @@ public class Authenticator {
         if(!mPasswordReader.fileExist()) {
             addDefaultUsers();
         }
+
     }
 
     private void addDefaultUsers() {
-        String username1 = "lars";
-        String password1 = "rabbit123";
+        String username1 = "alice";
+        String password1 = "alice";
         byte[] salt1 = generateSalt();
         mPasswordReader.savePassword(username1, salt1, hash(password1.toCharArray(), salt1));
 
-        String username2 = "admin";
-        String password2 = "admin";
+        String username2 = "bob";
+        String password2 = "bob";
         byte[] salt2 = generateSalt();
         mPasswordReader.savePassword(username2, salt2, hash(password2.toCharArray(), salt2));
 
-        String username3 = "obi_10_wan";
-        String password3 = "imnotthefather";
+        String username3 = "cecilia";
+        String password3 = "cecilia";
         byte[] salt3 = generateSalt();
         mPasswordReader.savePassword(username3, salt3, hash(password3.toCharArray(), salt3));
+
+        String username4= "david";
+        String password4 = "david";
+        byte[] salt4 = generateSalt();
+        mPasswordReader.savePassword(username4, salt4, hash(password4.toCharArray(), salt4));
+
+        String username5= "erica";
+        String password5 = "erica";
+        byte[] salt5 = generateSalt();
+        mPasswordReader.savePassword(username5, salt5, hash(password5.toCharArray(), salt5));
+
+        String username6= "fred";
+        String password6 = "fred";
+        byte[] salt6 = generateSalt();
+        mPasswordReader.savePassword(username6, salt6, hash(password6.toCharArray(), salt6));
+
+        String username7= "george";
+        String password7 = "george";
+        byte[] salt7 = generateSalt();
+        mPasswordReader.savePassword(username7, salt7, hash(password7.toCharArray(), salt7));
     }
 
     private byte[] generateSalt() {

@@ -9,8 +9,24 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class PrintServerImpl extends UnicastRemoteObject implements PrintServer {
+    //PRINT COMMANDS:
+    public static final String PRINT_COMMAND = "print";
+    public static final String START_COMMAND = "start";
+    public static final String STOP_COMMAND = "stop";
+    public static final String RESTART_COMMAND = "restart";
+    public static final String QUEUE_COMMAND = "queue";
+    public static final String TOPQUEUE_COMMAND = "topqueue";
+    public static final String STATUS_COMMAND = "status";
+    public static final String SETCONFIG_COMMAND = "setconfig";
+    public static final String READCONFIG_COMMAND = "readconfig";
+
+    public static final String NORIGHTS_MSG = "You don't have the proper rights to execute the command";
+
     public static final String AUTH_TESTER = "AUTHENTICATION_NEEDED";
     private boolean mServerRunning = false;
+    private Authenticator mAuthenticator;
+    private AccessController mAccessController;
+
     private ArrayList<Job> mQueue;
     private HashMap<String, String> mConfig;
     private HashSet<String> mAuthenticatedUsers;
@@ -19,6 +35,8 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
 
     protected PrintServerImpl() throws RemoteException {
         super();
+        mAuthenticator = new Authenticator();
+        mAccessController = new AccessController();
         mQueue = new ArrayList<>();
         mConfig = new HashMap<>();
         mAuthenticatedUsers = new HashSet<>();
@@ -37,13 +55,20 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     }
 
     @Override
-    public String start() {
-        Logger.Log("Start Server");
-        if(mServerRunning) {
-            return "Server is already running";
+    public String start(String username) {
+        if(!userIsAuthenticated(username)) {
+            return AUTH_TESTER;
         }
-        mServerRunning = true;
-        return "Server has started";
+        if(mAccessController.userHasAccessRights(username, START_COMMAND)) {
+            if (mServerRunning) {
+                return "Server is already running";
+            }
+            Logger.Log("Start Server");
+            mServerRunning = true;
+            return "Server has started";
+        } else {
+            return NORIGHTS_MSG;
+        }
     }
 
     @Override
@@ -52,11 +77,15 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Stop Server");
-            mQueue = new ArrayList<>();
-            mAuthenticatedUsers = new HashSet<>();
-            mServerRunning = false;
-            return "Server has stopped";
+            if(mAccessController.userHasAccessRights(username, STOP_COMMAND)) {
+                Logger.Log(username,"Stop Server");
+                mQueue = new ArrayList<>();
+                mAuthenticatedUsers = new HashSet<>();
+                mServerRunning = false;
+                return "Server has stopped";
+            } else {
+                return NORIGHTS_MSG;
+            }
         }
         return "Server is offline";
     }
@@ -67,9 +96,13 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Print Document");
-            mQueue.add(new Job(filename, printer));
-            return "added following document: " + filename + " to " + printer + "'s queue";
+            if(mAccessController.userHasAccessRights(username, PRINT_COMMAND)) {
+                Logger.Log(username,"Print Document");
+                mQueue.add(new Job(filename, printer));
+                return "added following document: " + filename + " to " + printer + "'s queue";
+            } else {
+                return NORIGHTS_MSG;
+            }
         }
         return "Server is offline";
     }
@@ -80,8 +113,12 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Display Queue");
-            return queueToString();
+            if(mAccessController.userHasAccessRights(username, QUEUE_COMMAND)) {
+                Logger.Log(username,"Display Queue");
+                return queueToString();
+            } else {
+                return NORIGHTS_MSG;
+            }
         }
         return "Server is offline";
     }
@@ -92,15 +129,18 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Top Queue");
-            if((jobindex <= mQueue.size()) && (jobindex > 0)) {
-                moveJobToTop(jobindex);
-                return "job " + jobindex + " moved to the top";
+            if(mAccessController.userHasAccessRights(username, TOPQUEUE_COMMAND)) {
+                Logger.Log(username,"Top Queue");
+                if((jobindex <= mQueue.size()) && (jobindex > 0)) {
+                    moveJobToTop(jobindex);
+                    return "job " + jobindex + " moved to the top";
+                }
+                return "no job at specified jobnumber";
+            } else {
+                return NORIGHTS_MSG;
             }
-            return "no job at specified jobnumber";
         }
         return "Server is offline";
-
     }
 
     @Override
@@ -109,12 +149,14 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Restart Server");
-            mServerRunning = false;
-            mQueue = new ArrayList<>();
-            mAuthenticatedUsers = new HashSet<>();
-            mServerRunning = true;
-            return "Server restarted";
+            if(mAccessController.userHasAccessRights(username, RESTART_COMMAND)) {
+                Logger.Log(username,"Restart Server");
+                mQueue = new ArrayList<>();
+                mAuthenticatedUsers = new HashSet<>();
+                return "Server restarted";
+            } else {
+                return NORIGHTS_MSG;
+            }
         }
         return "Server is offline";
     }
@@ -125,11 +167,15 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Server Status");
-            if(mQueue.isEmpty()) {
-                return "Server is online\nwaiting for job...";
+            if(mAccessController.userHasAccessRights(username, STATUS_COMMAND)) {
+                Logger.Log(username,"Server Status");
+                if(mQueue.isEmpty()) {
+                    return "Server is online\nwaiting for job...";
+                }
+                return "Server is online\nprinting document...";
+            } else {
+                return NORIGHTS_MSG;
             }
-            return "Server is online\nprinting document...";
         }
         return "Server is offline";
     }
@@ -140,12 +186,16 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Read Config");
-            String value = mConfig.getOrDefault(parameter,"null");
-            if(value.equals("null")) {
-                return "Couldn't find specific configuration";
+            if(mAccessController.userHasAccessRights(username, READCONFIG_COMMAND)) {
+                Logger.Log(username,"Read Config");
+                String value = mConfig.getOrDefault(parameter,"null");
+                if(value.equals("null")) {
+                    return "Couldn't find specific configuration";
+                }
+                return "Configuration " + parameter + " is set to: " + value;
+            } else {
+                return NORIGHTS_MSG;
             }
-            return "Configuration " + parameter + " is set to: " + value;
         }
         return "Server is offline";
     }
@@ -156,9 +206,13 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
             if(!userIsAuthenticated(username)) {
                 return AUTH_TESTER;
             }
-            Logger.Log(username,"Set Config");
-            mConfig.put(parameter, value);
-            return "Configuration set for: " + parameter + " => " + value;
+            if(mAccessController.userHasAccessRights(username, SETCONFIG_COMMAND)) {
+                Logger.Log(username,"Set Config");
+                mConfig.put(parameter, value);
+                return "Configuration set for: " + parameter + " => " + value;
+            } else {
+                return NORIGHTS_MSG;
+            }
         }
         return "Server is offline";
     }
@@ -194,11 +248,10 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
 
     @Override
     public String authenticate(String username, String password) {
-        Authenticator auth = new Authenticator();
-        if(auth.authenticate(username, password)){
+        if(mAuthenticator.authenticate(username, password)){
             mAuthenticatedUsers.add(username);
             Logger.LogAuth(username, true);
-            return "Log in successful!";
+            return "Logged in successful as " + username;
         }
         Logger.LogAuth(username, false);
         return "Username or password incorrect.";

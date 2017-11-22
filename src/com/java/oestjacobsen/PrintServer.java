@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public interface PrintServer extends Remote{
 
 
-    String start() throws RemoteException;
+    String start(String username) throws RemoteException;
     String stop(String username) throws RemoteException;
     String print(String filename, String printer, String username) throws RemoteException;
     String queue(String username) throws RemoteException;

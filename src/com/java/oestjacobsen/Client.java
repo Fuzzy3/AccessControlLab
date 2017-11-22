@@ -43,40 +43,40 @@ public class Client {
         String[] commands = input.split("\\s+");
         try {
             switch (commands[0]) {
-                case ("start"): {
-                    return mServer.start();
+                case (PrintServerImpl.START_COMMAND): {
+                    return mServer.start(mUsername);
                 }
-                case ("stop"): {
+                case (PrintServerImpl.STOP_COMMAND): {
                     return mServer.stop(mUsername);
                 }
-                case ("print"): {
+                case (PrintServerImpl.PRINT_COMMAND): {
                     if(commands.length >= 3) {
                         return mServer.print(commands[1], commands[2], mUsername);
                     }
                     return "print requires two arguments: print filename printer";
                 }
-                case ("queue"): {
+                case (PrintServerImpl.QUEUE_COMMAND): {
                     return mServer.queue(mUsername);
                 }
-                case ("topqueue") : {
+                case (PrintServerImpl.TOPQUEUE_COMMAND) : {
                     if(commands.length >= 2) {
                         return mServer.topQueue(Integer.valueOf(commands[1]), mUsername);
                     }
                     return "topqueue requires 1 argument: topqueue [jobnumber]";
                 }
-                case ("restart") : {
+                case (PrintServerImpl.RESTART_COMMAND) : {
                     return mServer.restart(mUsername);
                 }
-                case("status") : {
+                case(PrintServerImpl.STATUS_COMMAND) : {
                     return mServer.status(mUsername);
                 }
-                case ("setconfig") : {
+                case (PrintServerImpl.SETCONFIG_COMMAND) : {
                     if(commands.length >= 3) {
                         return mServer.setConfig(commands[1], commands[2], mUsername);
                     }
                     return "setconfig requires 2 arguments: setconfig colors false";
                 }
-                case ("readconfig") : {
+                case (PrintServerImpl.READCONFIG_COMMAND) : {
                     if(commands.length >= 2) {
                         return mServer.readConfig(commands[1], mUsername);
                     }
