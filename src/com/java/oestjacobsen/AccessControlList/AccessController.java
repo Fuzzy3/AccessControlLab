@@ -1,4 +1,4 @@
-package com.java.oestjacobsen;
+package com.java.oestjacobsen.AccessControlList;
 
 public class AccessController {
 

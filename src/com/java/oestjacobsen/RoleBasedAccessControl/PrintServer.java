@@ -1,8 +1,7 @@
-package com.java.oestjacobsen;
+package com.java.oestjacobsen.RoleBasedAccessControl;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 
 public interface PrintServer extends Remote{
 

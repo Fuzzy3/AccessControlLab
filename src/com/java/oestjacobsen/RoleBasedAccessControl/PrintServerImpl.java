@@ -1,4 +1,4 @@
-package com.java.oestjacobsen;
+package com.java.oestjacobsen.RoleBasedAccessControl;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -30,7 +30,6 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     private ArrayList<Job> mQueue;
     private HashMap<String, String> mConfig;
     private HashSet<String> mAuthenticatedUsers;
-
 
 
     protected PrintServerImpl() throws RemoteException {

@@ -1,11 +1,11 @@
-package com.java.oestjacobsen;
+package com.java.oestjacobsen.AccessControlList;
 
 import java.io.*;
 import java.util.Arrays;
 
 public class AccessControlReader {
 
-    private final String mAccessControlFileName = "accesscontrol.txt";
+    private final String mAccessControlFileName = "accesscontrollist.txt";
     private File mAccessControlFile;
 
 

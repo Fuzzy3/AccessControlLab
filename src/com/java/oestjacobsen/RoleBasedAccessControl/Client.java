@@ -1,12 +1,9 @@
-package com.java.oestjacobsen;
-
-import sun.java2d.cmm.CMMServiceProvider;
+package com.java.oestjacobsen.RoleBasedAccessControl;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
