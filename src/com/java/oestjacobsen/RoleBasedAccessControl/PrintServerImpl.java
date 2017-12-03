@@ -1,5 +1,7 @@
 package com.java.oestjacobsen.RoleBasedAccessControl;
 
+import sun.rmi.runtime.Log;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -56,16 +58,23 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     @Override
     public String start(String username) {
         if(!userIsAuthenticated(username)) {
+            Logger.LogBefore("Unknown user", START_COMMAND);
+            Logger.LogBeforeAuth("Unknown user", false);
             return AUTH_TESTER;
+        } else {
+            Logger.LogBefore(username, START_COMMAND);
+            Logger.LogBeforeAuth(username, true);
         }
         if(mAccessController.userHasAccessRights(username, START_COMMAND)) {
+            Logger.LogAccess(username, START_COMMAND, true);
             if (mServerRunning) {
                 return "Server is already running";
             }
-            Logger.Log("Start Server");
             mServerRunning = true;
+            Logger.Log("Server has started");
             return "Server has started";
         } else {
+            Logger.LogAccess(username, START_COMMAND,false);
             return NORIGHTS_MSG;
         }
     }
@@ -74,15 +83,22 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String stop(String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", STOP_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, STOP_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, STOP_COMMAND)) {
-                Logger.Log(username,"Stop Server");
+                Logger.LogAccess(username, STOP_COMMAND, true);
                 mQueue = new ArrayList<>();
                 mAuthenticatedUsers = new HashSet<>();
                 mServerRunning = false;
+                Logger.Log("Server has stopped");
                 return "Server has stopped";
             } else {
+                Logger.LogAccess(username, STOP_COMMAND,false);
                 return NORIGHTS_MSG;
             }
         }
@@ -93,13 +109,19 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String print(String filename, String printer, String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", PRINT_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, PRINT_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, PRINT_COMMAND)) {
-                Logger.Log(username,"Print Document");
+                Logger.LogAccess(username, PRINT_COMMAND, true);
                 mQueue.add(new Job(filename, printer));
                 return "added following document: " + filename + " to " + printer + "'s queue";
             } else {
+                Logger.LogAccess(username, STOP_COMMAND,false);
                 return NORIGHTS_MSG;
             }
         }
@@ -110,12 +132,18 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String queue(String username) {
         if (mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", QUEUE_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, QUEUE_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, QUEUE_COMMAND)) {
-                Logger.Log(username,"Display Queue");
+                Logger.LogAccess(username, QUEUE_COMMAND, true);
                 return queueToString();
             } else {
+                Logger.LogAccess(username, QUEUE_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -126,16 +154,22 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String topQueue(int jobindex, String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", TOPQUEUE_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, TOPQUEUE_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, TOPQUEUE_COMMAND)) {
-                Logger.Log(username,"Top Queue");
+                Logger.LogAccess(username, TOPQUEUE_COMMAND, true);
                 if((jobindex <= mQueue.size()) && (jobindex > 0)) {
                     moveJobToTop(jobindex);
                     return "job " + jobindex + " moved to the top";
                 }
                 return "no job at specified jobnumber";
             } else {
+                Logger.LogAccess(username, TOPQUEUE_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -146,14 +180,21 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String restart(String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", RESTART_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, RESTART_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, RESTART_COMMAND)) {
-                Logger.Log(username,"Restart Server");
+                Logger.LogAccess(username, RESTART_COMMAND, true);
                 mQueue = new ArrayList<>();
                 mAuthenticatedUsers = new HashSet<>();
+                Logger.Log("Server has restarted, authentication is needed again");
                 return "Server restarted";
             } else {
+                Logger.LogAccess(username, RESTART_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -164,15 +205,21 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String status(String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", STATUS_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, STATUS_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, STATUS_COMMAND)) {
-                Logger.Log(username,"Server Status");
+                Logger.LogAccess(username, STATUS_COMMAND, true);
                 if(mQueue.isEmpty()) {
                     return "Server is online\nwaiting for job...";
                 }
                 return "Server is online\nprinting document...";
             } else {
+                Logger.LogAccess(username, STATUS_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -183,16 +230,22 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String readConfig(String parameter, String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", READCONFIG_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, READCONFIG_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, READCONFIG_COMMAND)) {
-                Logger.Log(username,"Read Config");
+                Logger.LogAccess(username, READCONFIG_COMMAND, true);
                 String value = mConfig.getOrDefault(parameter,"null");
                 if(value.equals("null")) {
                     return "Couldn't find specific configuration";
                 }
                 return "Configuration " + parameter + " is set to: " + value;
             } else {
+                Logger.LogAccess(username, READCONFIG_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -203,13 +256,19 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     public String setConfig(String parameter, String value, String username) {
         if(mServerRunning) {
             if(!userIsAuthenticated(username)) {
+                Logger.LogBefore("Unknown user", SETCONFIG_COMMAND);
+                Logger.LogBeforeAuth("Unknown user", false);
                 return AUTH_TESTER;
+            } else {
+                Logger.LogBefore(username, SETCONFIG_COMMAND);
+                Logger.LogBeforeAuth(username, true);
             }
             if(mAccessController.userHasAccessRights(username, SETCONFIG_COMMAND)) {
-                Logger.Log(username,"Set Config");
+                Logger.LogAccess(username, SETCONFIG_COMMAND, true);
                 mConfig.put(parameter, value);
                 return "Configuration set for: " + parameter + " => " + value;
             } else {
+                Logger.LogAccess(username, SETCONFIG_COMMAND, false);
                 return NORIGHTS_MSG;
             }
         }
@@ -257,18 +316,35 @@ public class PrintServerImpl extends UnicastRemoteObject implements PrintServer 
     }
 
     private static class Logger {
-        public static void Log(String username, String command) {
-            System.out.println("Command: '" + command + "' executed by " + username);
+        public static void Log(String msg) {
+            System.out.println(msg);
         }
 
-        public static void Log(String command) {
-            System.out.println("Command: '" + command + "' executed");
+        public static void LogBefore(String username, String command) {
+            System.out.println("\n" + username + " wants to execute command " + command);
         }
+
         public static void LogAuth(String username, boolean success) {
             if(success) {
                 System.out.println(username + " successfully logged in!");
             } else {
                 System.out.println(username + " not found or wrong password!");
+            }
+        }
+
+        public static void LogBeforeAuth(String username, boolean success) {
+            if(success) {
+                System.out.println(username +  " is properly authenticated!");
+            } else {
+                System.out.println(username + " needs to be authenticated!");
+            }
+        }
+
+        public static void LogAccess(String username, String command,boolean success) {
+            if(success) {
+                System.out.println(username + " has permission and invokes " + command + " command");
+            } else {
+                System.out.println(username + " doesn't have the permission to invoke " + command);
             }
         }
     }
