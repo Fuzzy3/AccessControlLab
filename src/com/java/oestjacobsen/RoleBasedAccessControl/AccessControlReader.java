@@ -8,7 +8,7 @@ public class AccessControlReader {
 
     public static final String ADMIN_ROLE = "admin";
     public static final String SERVICE_ROLE = "service";
-    public static final String SUPERUSER_ROLE = "superuser";
+    public static final String SUPER_ROLE = "super";
     public static final String USER_ROLE = "user";
 
     private String[] mRoles = new String[4];
@@ -30,7 +30,7 @@ public class AccessControlReader {
     private void fillRoles() {
         mRoles[0] = ADMIN_ROLE;
         mRoles[1] = SERVICE_ROLE;
-        mRoles[2] = SUPERUSER_ROLE;
+        mRoles[2] = SUPER_ROLE;
         mRoles[3] = USER_ROLE;
     }
 
@@ -68,13 +68,11 @@ public class AccessControlReader {
         };
         saveAccessControlRole(SERVICE_ROLE, servicePolicy);
 
-        String[] superUserPolicy = {
-                PrintServerImpl.PRINT_COMMAND,
-                PrintServerImpl.QUEUE_COMMAND,
+        String[] superPolicy = {
                 PrintServerImpl.TOPQUEUE_COMMAND,
                 PrintServerImpl.RESTART_COMMAND
         };
-        saveAccessControlRole(SUPERUSER_ROLE, superUserPolicy);
+        saveAccessControlRole(SUPER_ROLE, superPolicy);
 
         String[] userPolicy = {
                 PrintServerImpl.PRINT_COMMAND,
@@ -97,7 +95,7 @@ public class AccessControlReader {
     }
 
 
-    public void saveAcessControlMember(String username, String role) {
+    public void saveAcessControlMember(String username, String[] roles) {
         try (FileWriter fw = new FileWriter(mAccessControlMembersFile, true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)){
@@ -105,7 +103,10 @@ public class AccessControlReader {
             StringBuilder builder = new StringBuilder();
             builder.append(username);
             builder.append(" ");
-            builder.append(role);
+            for(String role : roles) {
+                builder.append(role);
+                builder.append(" ");
+            }
 
             out.println(builder.toString());
         } catch (IOException e) {
@@ -151,14 +152,14 @@ public class AccessControlReader {
         return new String[0];
     }
 
-    public String readUserRole(String username) {
+    public String[] readUserRoles(String username) {
         try{
             if (membersFileExist()) {
                 BufferedReader br = new BufferedReader(new FileReader(mAccessControlMembersFile));
                 for (String line; (line = br.readLine()) != null; ) {
                     String[] userRole = line.split("\\s+");
                     if (userRole[0].equals(username)) {
-                        return userRole[1];
+                        return Arrays.copyOfRange(userRole, 1,userRole.length);
                     }
                 }
 
@@ -166,7 +167,7 @@ public class AccessControlReader {
         } catch(IOException e) {
             e.printStackTrace();
         }
-        return "";
+        return new String[]{""};
     }
 
 }
