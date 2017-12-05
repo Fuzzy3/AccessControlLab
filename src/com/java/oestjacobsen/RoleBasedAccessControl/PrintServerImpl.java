@@ -1,6 +1,5 @@
 package com.java.oestjacobsen.RoleBasedAccessControl;
 
-import sun.rmi.runtime.Log;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;

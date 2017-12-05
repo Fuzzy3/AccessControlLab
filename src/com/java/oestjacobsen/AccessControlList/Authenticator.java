@@ -24,8 +24,8 @@ public class Authenticator {
         byte[] salt1 = generateSalt();
         mPasswordReader.savePassword(username1, salt1, hash(password1.toCharArray(), salt1));
 
-        String username2 = "bob";
-        String password2 = "bob";
+        String username2 = "ida";
+        String password2 = "ida";
         byte[] salt2 = generateSalt();
         mPasswordReader.savePassword(username2, salt2, hash(password2.toCharArray(), salt2));
 
@@ -53,6 +53,11 @@ public class Authenticator {
         String password7 = "george";
         byte[] salt7 = generateSalt();
         mPasswordReader.savePassword(username7, salt7, hash(password7.toCharArray(), salt7));
+
+        String username8= "henry";
+        String password8 = "henry";
+        byte[] salt8 = generateSalt();
+        mPasswordReader.savePassword(username8, salt8, hash(password8.toCharArray(), salt8));
     }
 
     private byte[] generateSalt() {

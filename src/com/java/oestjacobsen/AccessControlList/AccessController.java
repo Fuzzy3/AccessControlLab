@@ -26,13 +26,15 @@ public class AccessController {
         };
         mAccessControlReader.saveAccessControl(username1, commands1);
 
-        String username2 = "bob";
+        String username2 = "george";
         String[] commands2 = {
                 PrintServerImpl.START_COMMAND,
                 PrintServerImpl.STOP_COMMAND,
                 PrintServerImpl.RESTART_COMMAND,
                 PrintServerImpl.SETCONFIG_COMMAND,
-                PrintServerImpl.READCONFIG_COMMAND
+                PrintServerImpl.READCONFIG_COMMAND,
+                PrintServerImpl.PRINT_COMMAND,
+                PrintServerImpl.QUEUE_COMMAND
         };
         mAccessControlReader.saveAccessControl(username2, commands2);
 
@@ -56,8 +58,10 @@ public class AccessController {
         mAccessControlReader.saveAccessControl(username5, commands4);
         String username6 = "fred";
         mAccessControlReader.saveAccessControl(username6, commands4);
-        String username7 = "george";
+        String username7 = "henry";
         mAccessControlReader.saveAccessControl(username7, commands4);
+        String username8 = "ida";
+        mAccessControlReader.saveAccessControl(username8, commands3);
     }
 
     public boolean userHasAccessRights(String username, String command) {

@@ -15,8 +15,8 @@ public class AccessController {
         String username1 = "alice";
         mAccessControlReader.saveAcessControlMember(username1, new String[]{AccessControlReader.ADMIN_ROLE});
 
-        String username2 = "bob";
-        mAccessControlReader.saveAcessControlMember(username2, new String[]{AccessControlReader.SERVICE_ROLE});
+        String username2 = "george";
+        mAccessControlReader.saveAcessControlMember(username2, new String[]{AccessControlReader.USER_ROLE, AccessControlReader.SERVICE_ROLE});
 
         String username3 = "cecilia";
         mAccessControlReader.saveAcessControlMember(username3, new String[]{AccessControlReader.SUPER_ROLE, AccessControlReader.USER_ROLE});
@@ -30,8 +30,11 @@ public class AccessController {
         String username6 = "fred";
         mAccessControlReader.saveAcessControlMember(username6, new String[]{AccessControlReader.USER_ROLE});
 
-        String username7 = "george";
+        String username7 = "henry";
         mAccessControlReader.saveAcessControlMember(username7, new String[]{AccessControlReader.USER_ROLE});
+
+        String username8 = "ida";
+        mAccessControlReader.saveAcessControlMember(username8, new String[]{AccessControlReader.USER_ROLE, AccessControlReader.SUPER_ROLE});
     }
 
     public boolean userHasAccessRights(String username, String command) {
